@@ -37,12 +37,8 @@
             collapsedClass  : 'dd-collapsed',
             placeClass      : 'dd-placeholder',
             noDragClass     : 'dd-nodrag',
-            emptyClass      : 'dd-empty',
             noDropClass     : 'dd-nodrop',
-            leafNodeClass   : 'dd-leaf',
-            level1Class     : 'dd1-item', 
-            parentNodeClass : 'dd-parent',
-
+            emptyClass      : 'dd-empty',
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
@@ -241,11 +237,6 @@
             if (li.children(this.options.listNodeName).length) {
                 li.prepend($(this.options.expandBtnHTML));
                 li.prepend($(this.options.collapseBtnHTML));
-                li.addClass(this.options.parentNodeClass);
-                li.removeClass(this.options.leafNodeClass);
-            }else{
-                li.addClass(this.options.leafNodeClass);
-                li.removeClass(this.options.parentNodeClass);
             }
             li.children('[data-action="expand"]').hide();
         },
@@ -255,8 +246,6 @@
             li.removeClass(this.options.collapsedClass);
             li.children('[data-action]').remove();
             li.children(this.options.listNodeName).remove();
-            li.removeClass(this.options.parentNodeClass);
-            li.addClass(this.options.leafNodeClass);
         },
 
         dragStart: function(e)
@@ -369,25 +358,7 @@
             if (mouse.dirAx && mouse.distAxX >= opt.threshold) {
                 // reset move distance on x-axis for new phase
                 mouse.distAxX = 0;
-                // Element where cursor is present while moving
-                this.pointEl = $(document.elementFromPoint(e.pageX - document.body.scrollLeft, e.pageY - (window.pageYOffset || document.documentElement.scrollTop)));
-                var isDropRejected = false;
-                
-                // set drag reject if parent li element has drop reject class                
-                if (this.pointEl.hasClass(opt.handleClass)) {
-                    isDropRejected = this.pointEl.parents(opt.itemNodeName).eq(1).hasClass(opt.noDropClass);
-                }
-
-                //setting the elements where the placeholder needs to go
                 prev = this.placeEl.prev(opt.itemNodeName);
-                if(isDropRejected){
-                    prev = this.pointEl.parent();
-                    parent = this.placeEl.parent();
-                    if (parent.children().length <= 1) {
-                        this.unsetParent(parent.parent());
-                    }
-                }
-                placeElParent = this.placeEl.parent().parent();
                 // increase horizontal level if previous sibling exists and is not collapsed
                 if (mouse.distX > 0 && prev.length && !prev.hasClass(opt.collapsedClass) && !prev.hasClass(opt.noDropClass)) {
                     // cannot increase level when item above is collapsed
@@ -414,16 +385,9 @@
                     next = this.placeEl.next(opt.itemNodeName);
                     if (!next.length) {
                         parent = this.placeEl.parent();
-                        if(this.placeEl.closest(opt.itemNodeName).parent().parent().hasClass(opt.noDropClass)){
-                            this.placeEl.closest(opt.itemNodeName).parent().parent().after(this.placeEl);
-                            if (!parent.children().length) {
-                                this.unsetParent(parent.parent());
-                            }
-                        }else{
-                            this.placeEl.closest(opt.itemNodeName).after(this.placeEl);
-                            if (!parent.children().length) {
-                                this.unsetParent(parent.parent());
-                            }
+                        this.placeEl.closest(opt.itemNodeName).after(this.placeEl);
+                        if (!parent.children().length) {
+                            this.unsetParent(parent.parent());
                         }
                     }
                 }
@@ -452,7 +416,7 @@
             // find parent list of item under cursor
             var pointElRoot = this.pointEl.closest('.' + opt.rootClass),
                 isNewRoot   = this.dragRootEl.data('nestable-id') !== pointElRoot.data('nestable-id');
-                isDropRejected = this.pointEl.parent().parent().hasClass(opt.noDropClass);
+
             /**
              * move vertical
              */
@@ -474,12 +438,11 @@
                     list.append(this.placeEl);
                     this.pointEl.replaceWith(list);
                 }
-                else if (before && !isDropRejected) {
+                else if (before) {
                     this.pointEl.before(this.placeEl);
                 }
                 else {
-                    if(!isDropRejected)
-                        this.pointEl.after(this.placeEl);
+                    this.pointEl.after(this.placeEl);
                 }
                 if (!parent.children().length) {
                     this.unsetParent(parent.parent());
