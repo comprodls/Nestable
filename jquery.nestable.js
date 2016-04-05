@@ -246,7 +246,6 @@
             }else{
                 li.addClass(this.options.leafNodeClass);
                 li.removeClass(this.options.parentNodeClass);
-                li.addClass(this.options.noDropClass);
             }
             li.children('[data-action="expand"]').hide();
         },
@@ -258,7 +257,6 @@
             li.children(this.options.listNodeName).remove();
             li.removeClass(this.options.parentNodeClass);
             li.addClass(this.options.leafNodeClass);
-            li.addClass(this.options.noDropClass);
         },
 
         dragStart: function(e)
