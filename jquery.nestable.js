@@ -360,6 +360,7 @@
                 mouse.distAxX = 0;
                 prev = this.placeEl.prev(opt.itemNodeName);
                 // increase horizontal level if previous sibling exists and is not collapsed
+                // Last condition makes sure that the leaf node having opt.noDropClass cannot become a parent.
                 if (mouse.distX > 0 && prev.length && !prev.hasClass(opt.collapsedClass) && !prev.hasClass(opt.noDropClass)) {
                     // cannot increase level when item above is collapsed
                     list = prev.find(opt.listNodeName).last();
