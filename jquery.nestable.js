@@ -150,8 +150,7 @@
                     items.each(function()
                     {
                         var li   = $(this),
-                            /** [COMPRO DLS changes] **/
-                            item = $.extend({}, {'id' : li.data('id')}),
+                            item = $.extend({}, li.data()),
                             sub  = li.children(list.options.listNodeName);
                         if (sub.length) {
                             item.children = step(sub, depth + 1);
