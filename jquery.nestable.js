@@ -37,6 +37,7 @@
             collapsedClass  : 'dd-collapsed',
             placeClass      : 'dd-placeholder',
             noDragClass     : 'dd-nodrag',
+            /**[COMPRO DLS chnages]**/
             noDropClass     : 'dd-nodrop',
             emptyClass      : 'dd-empty',
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
@@ -289,11 +290,14 @@
         dragStop: function(e)
         {
             var el = this.dragEl.children(this.options.itemNodeName).first();
+            /**[COMPRO DLS chnages]**/
+            var destinationList = this.placeEl.parent();
+
             el[0].parentNode.removeChild(el[0]);
             this.placeEl.replaceWith(el);
 
-            this.dragEl.remove();
-            this.el.trigger('change');
+            /**[COMPRO DLS chnages]**/
+            this.el.trigger('change',[{"destinationList": destinationList}] );
             if (this.hasNewRoot) {
                 this.dragRootEl.trigger('change');
             }
@@ -360,6 +364,7 @@
                 mouse.distAxX = 0;
                 prev = this.placeEl.prev(opt.itemNodeName);
                 // increase horizontal level if previous sibling exists and is not collapsed
+                /**[COMPRO DLS chnages]**/
                 // Last condition makes sure that the leaf node having opt.noDropClass cannot become a parent.
                 if (mouse.distX > 0 && prev.length && !prev.hasClass(opt.collapsedClass) && !prev.hasClass(opt.noDropClass)) {
                     // cannot increase level when item above is collapsed
