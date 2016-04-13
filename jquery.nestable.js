@@ -192,6 +192,9 @@
             this.isTouch    = false;
             this.moving     = false;
             this.dragEl     = null;
+            /**[COMPRO DLS chnages]**/
+            this.sourceList = null;
+            this.sourceIndex = 0;
             this.dragRootEl = null;
             this.dragDepth  = 0;
             this.hasNewRoot = false;
@@ -270,6 +273,12 @@
             dragItem.after(this.placeEl);
             dragItem[0].parentNode.removeChild(dragItem[0]);
             dragItem.appendTo(this.dragEl);
+            /**[COMPRO DLS chnages]**/
+            /*
+             * Set source index and source list, so that we can check whether to trigger change event 
+             */
+            this.sourceIndex = this.placeEl.index();
+            this.sourceList = this.placeEl.parent();
 
             $(document.body).append(this.dragEl);
             this.dragEl.css({
@@ -292,14 +301,24 @@
             var el = this.dragEl.children(this.options.itemNodeName).first();
             /**[COMPRO DLS chnages]**/
             var destinationList = this.placeEl.parent();
-
+            var destinationIndex = this.placeEl.index();
+            
             el[0].parentNode.removeChild(el[0]);
-            this.placeEl.replaceWith(el);
-
+        
             /**[COMPRO DLS chnages]**/
-            this.el.trigger('change',[{"destinationList": destinationList}] );
-            if (this.hasNewRoot) {
-                this.dragRootEl.trigger('change');
+            /*
+             * Do not trigger change event and replace with placeholder if element has been dropped into same position as before
+             */
+            if(this.sourceList[0] === destinationList[0] && this.sourceIndex === destinationIndex){
+                this.placeEl.replaceWith(el);
+                this.dragEl.remove();
+            }else{
+                this.placeEl.remove();
+                //send destination source and index details with the event
+                this.el.trigger('change',[{"destinationList": destinationList,"destinationIndex": destinationIndex}] );
+                if (this.hasNewRoot) {
+                    this.dragRootEl.trigger('change');
+                }
             }
             this.reset();
         },
