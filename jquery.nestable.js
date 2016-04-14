@@ -68,7 +68,13 @@
             list.placeEl = $('<div class="' + list.options.placeClass + '"/>');
 
             $.each(this.el.find(list.options.itemNodeName), function(k, el) {
-                list.setParent($(el));
+                /**[COMPRO DLS chnages]**/
+                /* Now nestable library only handles the adding/removing of icon when an mouse is dragging the node in/out of the 
+                 * parent node. 
+                 * When dragging starts the icon in the template is hiddhen by angular. Upon drag stop icon provided by nestable 
+                 * is removed by the directive when change event is called and the icon in the template shown. 
+                 */
+                //list.setParent($(el));
             });
 
             list.el.on('click', 'button', function(e) {
@@ -193,7 +199,7 @@
             this.moving     = false;
             this.dragEl     = null;
             /**[COMPRO DLS chnages]**/
-            this.sourceList = null;
+            this.sourceItemEl = null;
             this.sourceIndex = 0;
             this.dragRootEl = null;
             this.dragDepth  = 0;
@@ -275,10 +281,10 @@
             dragItem.appendTo(this.dragEl);
             /**[COMPRO DLS chnages]**/
             /*
-             * Set source index and source list, so that we can check whether to trigger change event 
+             * Set source index and source item, so that we can check whether to trigger change event 
              */
             this.sourceIndex = this.placeEl.index();
-            this.sourceList = this.placeEl.parent();
+            this.sourceItemEl = this.placeEl.parent().parent();
 
             $(document.body).append(this.dragEl);
             this.dragEl.css({
@@ -309,7 +315,7 @@
             /*
              * Do not trigger change event and replace with placeholder if element has been dropped into same position as before
              */
-            if(this.sourceList[0] === destinationList[0] && this.sourceIndex === destinationIndex){
+            if(this.sourceItemEl[0] === destinationList.parent()[0] && this.sourceIndex === destinationIndex){
                 this.placeEl.replaceWith(el);
                 this.dragEl.remove();
             }else{
