@@ -306,7 +306,7 @@
         {
             var el = this.dragEl.children(this.options.itemNodeName).first();
             /**[COMPRO DLS chnages]**/
-            var destinationList = this.placeEl.parent();
+            var destinationItemEl = this.placeEl.parent().parent();
             var destinationIndex = this.placeEl.index();
             
             el[0].parentNode.removeChild(el[0]);
@@ -315,17 +315,17 @@
             /*
              * Do not trigger change event and replace with placeholder if element has been dropped into same position as before
              */
-            if(this.sourceItemEl[0] === destinationList.parent()[0] && this.sourceIndex === destinationIndex){
+            if(this.sourceItemEl[0] === destinationItemEl[0] && this.sourceIndex === destinationIndex){
                 this.placeEl.replaceWith(el);
-                this.dragEl.remove();
             }else{
                 this.placeEl.remove();
-                //send destination source and index details with the event
-                this.el.trigger('change',[{"destinationList": destinationList,"destinationIndex": destinationIndex}] );
+                //send destination item, source item el and index details with the event
+                this.el.trigger('change',[{"sourceItemEl": this.sourceItemEl, "sourceIndex": this.sourceIndex, "destinationItemEl": destinationItemEl,"destinationIndex": destinationIndex}] );
                 if (this.hasNewRoot) {
                     this.dragRootEl.trigger('change');
                 }
             }
+            this.dragEl.remove();
             this.reset();
         },
 
