@@ -255,7 +255,13 @@
         {
             li.removeClass(this.options.collapsedClass);
             li.children('[data-action]').remove();
-            li.children(this.options.listNodeName).remove();
+            /**[COMPRO DLS chnages]**/
+            /**
+              * Removing nestable's capability of adding and removing listNode while setting and unseting parents
+              * The adding/removing of listNode will be handled by the user of the library.
+              * Now netable does not append or remove listNode.
+              */
+            //li.children(this.options.listNodeName).remove();
         },
 
         dragStart: function(e)
@@ -401,7 +407,13 @@
                         if (!list.length) {
                             list = $('<' + opt.listNodeName + '/>').addClass(opt.listClass);
                             list.append(this.placeEl);
-                            prev.append(list);
+                            /**[COMPRO DLS chnages]**/
+                            /**
+                              * Removing nestable's capability of adding and removing listNode while setting and unseting parents
+                              * The adding/removing of listNode will be handled by the user of the library.
+                              * Now netable does not append or remove listNode.
+                              */
+                            //prev.append(list);
                             this.setParent(prev);
                         } else {
                             // else append to next level up
