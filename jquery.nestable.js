@@ -324,7 +324,16 @@
             if(this.sourceItemEl[0] === destinationItemEl[0] && this.sourceIndex === destinationIndex){
                 this.placeEl.replaceWith(el);
             }else{
-                this.placeEl.remove();
+                /**[COMPRO DLS chnages]**/
+                /*
+                 * Scenario : When the source and destination are same i.e. only the index changes.
+                 * If we remove el and placeEl, angualar would lose HTML/view to it's model hence would not be able to show it.
+                 * Hence we do not remove both el and placeEl, instead we replace it so that view-model binding is not lost in angular.
+                 */
+                if(this.sourceItemEl[0] !== destinationItemEl[0])
+                    this.placeEl.remove();
+                else
+                    this.placeEl.replaceWith(el);
                 //send destination item, source item el and index details with the event
                 this.el.trigger('change',[{"sourceItemEl": this.sourceItemEl, "sourceIndex": this.sourceIndex, "destinationItemEl": destinationItemEl,"destinationIndex": destinationIndex}] );
                 if (this.hasNewRoot) {
@@ -334,6 +343,7 @@
             this.dragEl.remove();
             this.reset();
         },
+
 
         dragMove: function(e)
         {
