@@ -37,14 +37,15 @@
             collapsedClass  : 'dd-collapsed',
             placeClass      : 'dd-placeholder',
             noDragClass     : 'dd-nodrag',
-            /**[COMPRO DLS chnages]**/
-            noDropClass     : 'dd-nodrop',
             emptyClass      : 'dd-empty',
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
             maxDepth        : 5,
-            threshold       : 20
+            threshold       : 20,
+            /**[COMPRO DLS chnages]**/
+            noDropClass     : 'dd-nodrop',
+            leafClass       : 'dd-leaf',
         };
 
     function Plugin(element, options)
@@ -356,6 +357,13 @@
                 'top'  : e.pageY - mouse.offsetY
             });
 
+            /**[COMPRO DLS chnages]**/
+            /**
+             * Checks if the node is a leafNode. 
+             * We can use this variable to make sure that the leafNode should not be level one node. 
+             */
+            var isLeafnode = this.dragEl.find(opt.itemNodeName).hasClass(opt.leafClass);                    
+
             // mouse position last events
             mouse.lastX = mouse.nowX;
             mouse.lastY = mouse.nowY;
@@ -434,15 +442,22 @@
                 }
                 // decrease horizontal level
                 if (mouse.distX < 0) {
+                    /**[COMPRO DLS chnages]**/
+                    /**
+                     * Make sure that the leafNode should not be level one node. 
+                     * Checked by condition !(depth - 1 == 1 && isLeafnode)
+                     */
+                    depth = this.placeEl.parents(opt.listNodeName).length;
                     // we can't decrease a level if an item preceeds the current one
                     next = this.placeEl.next(opt.itemNodeName);
-                    if (!next.length) {
+                    if (!next.length && !(depth - 1 == 1 && isLeafnode)) {
                         parent = this.placeEl.parent();
                         this.placeEl.closest(opt.itemNodeName).after(this.placeEl);
                         if (!parent.children().length) {
                             this.unsetParent(parent.parent());
                         }
                     }
+                    
                 }
             }
 
@@ -481,6 +496,14 @@
                 // check depth limit
                 depth = this.dragDepth - 1 + this.pointEl.parents(opt.listNodeName).length;
                 if (depth > opt.maxDepth) {
+                    return;
+                }
+
+                /**[COMPRO DLS chnages]**/
+                /**
+                 * Make sure that the leafNode should not be level one node.
+                 */
+                if(depth == 1 && isLeafnode){
                     return;
                 }
                 var before = e.pageY < (this.pointEl.offset().top + this.pointEl.height() / 2);
