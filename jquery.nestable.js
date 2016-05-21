@@ -506,31 +506,58 @@
                     return;
                 }
 
-                /**[COMPRO DLS chnages]**/
-                /**
-                 * Make sure that the leafNode should not be level one node.
-                 */
-                if(depth == 1 && isLeafnode){
-                    return;
-                }
-                var before = e.pageY < (this.pointEl.offset().top + this.pointEl.height() / 2);
+                var before = e.pageY < (this.pointEl.offset().top + this.pointEl.height() / 2);                   
                     parent = this.placeEl.parent();
-                // if empty create new list to replace empty placeholder
+
                 if (isEmpty) {
                     list = $(document.createElement(opt.listNodeName)).addClass(opt.listClass);
                     list.append(this.placeEl);
                     this.pointEl.replaceWith(list);
                 }
                 else if (before) {
-                    this.pointEl.before(this.placeEl);
+                    /**[COMPRO DLS chnages]**/
+                    /**
+                     * Make sure that the leafNode should not be level one node.
+                     */
+                    if(isLeafnode){
+                        if(depth > 1){
+                            //console.log("before --- depth > 1");
+                            this.pointEl.before(this.placeEl); 
+                        }else{
+                            //console.log("before --- depth < 1");
+                            if(!this.pointEl.children(opt.listNodeName).hasClass(opt.collapsedClass)){
+                                list = this.pointEl.children(opt.listNodeName);
+                                list.prepend(this.placeEl);
+                            }
+                        }
+                    }else{
+                        this.pointEl.before(this.placeEl); 
+                    }
                 }
                 else {
-                    this.pointEl.after(this.placeEl);
+                    /**[COMPRO DLS chnages]**/
+                    /**
+                     * Make sure that the leafNode should not be level one node.
+                     */
+                    if(isLeafnode){
+                        if(depth > 1){
+                            //console.log("else --- depth > 1");
+                            this.pointEl.after(this.placeEl);    
+                        }else{
+                            //console.log("else --- depth < 1");
+                            if(!this.pointEl.children(opt.listNodeName).hasClass(opt.collapsedClass)){
+                                list = this.pointEl.children(opt.listNodeName);
+                                list.prepend(this.placeEl);
+                            }
+                        }
+                    }else{
+                        this.pointEl.after(this.placeEl);    
+                    }
                 }
                 /**[COMPRO DLS chnages]**/
                 /**
                   * Removing nestable's capability of adding and removing listNode and expand collapse buttons while setting and unseting parents
-                  * The listNode and buttons will be handled by the user of the library.
+                  * The listNode will be handled by the user of the library.
                   */
                 // if (!parent.children().length) {
                 //     this.unsetParent(parent.parent());
