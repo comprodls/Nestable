@@ -37,14 +37,15 @@
             collapsedClass  : 'dd-collapsed',
             placeClass      : 'dd-placeholder',
             noDragClass     : 'dd-nodrag',
-            /**[COMPRO DLS chnages]**/
-            noDropClass     : 'dd-nodrop',
             emptyClass      : 'dd-empty',
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
             maxDepth        : 5,
-            threshold       : 20
+            threshold       : 20,
+            /**[COMPRO DLS chnages]**/
+            noDropClass     : 'dd-nodrop',
+            leafClass       : 'dd-leaf',
         };
 
     function Plugin(element, options)
@@ -356,6 +357,13 @@
                 'top'  : e.pageY - mouse.offsetY
             });
 
+            /**[COMPRO DLS chnages]**/
+            /**
+             * Checks if the node is a leafNode. 
+             * We can use this variable to make sure that the leafNode should not be level one node. 
+             */
+            var isLeafnode = this.dragEl.find(opt.itemNodeName).hasClass(opt.leafClass);                    
+
             // mouse position last events
             mouse.lastX = mouse.nowX;
             mouse.lastY = mouse.nowY;
@@ -414,35 +422,49 @@
                     depth = this.placeEl.parents(opt.listNodeName).length;
                     if (depth + this.dragDepth <= opt.maxDepth) {
                         // create new sub-level if one doesn't exist
-                        if (!list.length) {
-                            list = $('<' + opt.listNodeName + '/>').addClass(opt.listClass);
-                            list.append(this.placeEl);
-                            /**[COMPRO DLS chnages]**/
-                            /**
-                              * Removing nestable's capability of adding and removing listNode while setting and unseting parents
-                              * The adding/removing of listNode will be handled by the user of the library.
-                              * Now netable does not append or remove listNode.
-                              */
-                            //prev.append(list);
-                            this.setParent(prev);
-                        } else {
+                        /**[COMPRO DLS chnages]**/
+                        /**
+                          * Removing nestable's capability of adding and removing listNode and expand collapse buttons while setting and unseting parents
+                          * The listNode and buttons will be handled by the user of the library.
+                          */
+                        // if (!list.length) {
+                        //     list = $('<' + opt.listNodeName + '/>').addClass(opt.listClass);
+                        //     list.append(this.placeEl);
+                        //     prev.append(list);
+                        //     this.setParent(prev);
+                        // } else {
+                            
                             // else append to next level up
                             list = prev.children(opt.listNodeName).last();
                             list.append(this.placeEl);
-                        }
+
+
+                        //}
                     }
                 }
                 // decrease horizontal level
                 if (mouse.distX < 0) {
+                    /**[COMPRO DLS chnages]**/
+                    /**
+                     * Make sure that the leafNode should not be level one node. 
+                     * Checked by condition !(depth - 1 == 1 && isLeafnode)
+                     */
+                    depth = this.placeEl.parents(opt.listNodeName).length;
                     // we can't decrease a level if an item preceeds the current one
                     next = this.placeEl.next(opt.itemNodeName);
-                    if (!next.length) {
+                    if (!next.length && !(depth - 1 == 1 && isLeafnode)) {
                         parent = this.placeEl.parent();
                         this.placeEl.closest(opt.itemNodeName).after(this.placeEl);
-                        if (!parent.children().length) {
-                            this.unsetParent(parent.parent());
-                        }
+                        /**[COMPRO DLS chnages]**/
+                        /**
+                          * Removing nestable's capability of adding and removing listNode and expand collapse buttons while setting and unseting parents
+                          * The listNode and buttons will be handled by the user of the library.
+                          */
+                        // if (!parent.children().length) {
+                        //     this.unsetParent(parent.parent());
+                        // }
                     }
+                    
                 }
             }
 
@@ -483,23 +505,63 @@
                 if (depth > opt.maxDepth) {
                     return;
                 }
-                var before = e.pageY < (this.pointEl.offset().top + this.pointEl.height() / 2);
+
+                var before = e.pageY < (this.pointEl.offset().top + this.pointEl.height() / 2);                   
                     parent = this.placeEl.parent();
-                // if empty create new list to replace empty placeholder
+
                 if (isEmpty) {
                     list = $(document.createElement(opt.listNodeName)).addClass(opt.listClass);
                     list.append(this.placeEl);
                     this.pointEl.replaceWith(list);
                 }
                 else if (before) {
-                    this.pointEl.before(this.placeEl);
+                    /**[COMPRO DLS chnages]**/
+                    /**
+                     * Make sure that the leafNode should not be level one node.
+                     */
+                    if(isLeafnode){
+                        if(depth > 1){
+                            //console.log("before --- depth > 1");
+                            this.pointEl.before(this.placeEl); 
+                        }else{
+                            //console.log("before --- depth < 1");
+                            if(!this.pointEl.children(opt.listNodeName).hasClass(opt.collapsedClass)){
+                                list = this.pointEl.children(opt.listNodeName);
+                                list.prepend(this.placeEl);
+                            }
+                        }
+                    }else{
+                        this.pointEl.before(this.placeEl); 
+                    }
                 }
                 else {
-                    this.pointEl.after(this.placeEl);
+                    /**[COMPRO DLS chnages]**/
+                    /**
+                     * Make sure that the leafNode should not be level one node.
+                     */
+                    if(isLeafnode){
+                        if(depth > 1){
+                            //console.log("else --- depth > 1");
+                            this.pointEl.after(this.placeEl);    
+                        }else{
+                            //console.log("else --- depth < 1");
+                            if(!this.pointEl.children(opt.listNodeName).hasClass(opt.collapsedClass)){
+                                list = this.pointEl.children(opt.listNodeName);
+                                list.prepend(this.placeEl);
+                            }
+                        }
+                    }else{
+                        this.pointEl.after(this.placeEl);    
+                    }
                 }
-                if (!parent.children().length) {
-                    this.unsetParent(parent.parent());
-                }
+                /**[COMPRO DLS chnages]**/
+                /**
+                  * Removing nestable's capability of adding and removing listNode and expand collapse buttons while setting and unseting parents
+                  * The listNode will be handled by the user of the library.
+                  */
+                // if (!parent.children().length) {
+                //     this.unsetParent(parent.parent());
+                // }
                 if (!this.dragRootEl.find(opt.itemNodeName).length) {
                     this.dragRootEl.append('<div class="' + opt.emptyClass + '"/>');
                 }
